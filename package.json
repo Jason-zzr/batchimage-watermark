@@ -30,7 +30,11 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "smoke:html": "node scripts/smoke-html.mjs",
-    "verify": "npm run type-check && npm run lint && npm run build && npm run smoke:html"
+    "verify": "npm run type-check && npm run lint && npm run build && npm run smoke:html",
+    "desktop:build": "next build && node scripts/prepare-electron-next.mjs",
+    "desktop:dir": "next build && node scripts/prepare-electron-next.mjs && electron-builder --win dir",
+    "desktop:installer": "next build && node scripts/prepare-electron-next.mjs && electron-builder --win nsis",
+    "electron:dev": "electron electron/main.cjs --dev"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
@@ -59,10 +63,52 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "^16.0.10",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.local.batch-watermark",
+    "productName": "Batch Watermark",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".electron-next",
+        "to": "app-next",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Batch Watermark"
+    }
   }
 }
